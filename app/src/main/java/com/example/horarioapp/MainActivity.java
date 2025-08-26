@@ -26,17 +26,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Vincular vistas
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
         toolbar = findViewById(R.id.toolbar);
 
-        // Configurar toolbar como ActionBar
         setSupportActionBar(toolbar);
 
-        // Configurar botón hamburguesa
-        toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -50,18 +46,17 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
 
                 if (id == R.id.nav_pag_principal) {
-                    Toast.makeText(MainActivity.this, "Abrir Horario", Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(MainActivity.this, "Pagina Principal", Toast.LENGTH_SHORT).show();
+                } else if (id == R.id.nav_courses) {
+                    Toast.makeText(MainActivity.this, "Ingresar Cursos", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.nav_calendario) {
                     Intent intent = new Intent(MainActivity.this, CalendarioActivity.class);
                     startActivity(intent);
-
-                } else if (id == R.id.nav_courses) {
-                    Toast.makeText(MainActivity.this, "Ingresar Cursos", Toast.LENGTH_SHORT).show();
-
-                } else if (id == R.id.nav_config) {
-                    Toast.makeText(MainActivity.this, "Abrir Configuración", Toast.LENGTH_SHORT).show();
-
+                } else if (id == R.id.nav_horario) {
+                    Intent intent = new Intent(MainActivity.this, HorarioActivity.class);
+                    startActivity(intent);
+                } else if (id == R.id.nav_profesores) {
+                    Toast.makeText(MainActivity.this, "Ingresa profesores", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.nav_salir) {
                     finish();
                 }

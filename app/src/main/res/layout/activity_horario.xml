@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:title="Calendario"
+            app:title="Horario"
             app:titleTextColor="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +39,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.alamkanak.weekview.WeekView
+                android:id="@+id/weekView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:numberOfVisibleDays="3"
+                app:showNowLine="true"/>
 
         </androidx.cardview.widget.CardView>
 

@@ -15,23 +15,23 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.alamkanak.weekview.WeekView;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.Calendar;
-
-public class CalendarioActivity extends AppCompatActivity {
+public class HorarioActivity extends AppCompatActivity{
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private Toolbar toolbar;
     private ActionBarDrawerToggle toggle;
+    private WeekView weekView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendario);
+        setContentView(R.layout.activity_horario);
 
         // Vincular vistas
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
         toolbar = findViewById(R.id.toolbar);
+        weekView = findViewById(R.id.weekView);
 
         // Configurar toolbar como ActionBar
         setSupportActionBar(toolbar);
@@ -51,17 +51,17 @@ public class CalendarioActivity extends AppCompatActivity {
                 int id = item.getItemId();
 
                 if (id == R.id.nav_pag_principal) {
-                    Intent intent = new Intent(CalendarioActivity.this, MainActivity.class);
+                    Intent intent = new Intent(HorarioActivity.this, MainActivity.class);
                     startActivity(intent);
                 } else if (id == R.id.nav_courses) {
-                    Toast.makeText(CalendarioActivity.this, "Ingresar Cursos", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HorarioActivity.this, "Ingresar Cursos", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.nav_calendario) {
-                    Toast.makeText(CalendarioActivity.this, "Calendario", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_horario) {
-                    Intent intent = new Intent(CalendarioActivity.this, HorarioActivity.class);
+                    Intent intent = new Intent(HorarioActivity.this, CalendarioActivity.class);
                     startActivity(intent);
+                } else if (id == R.id.nav_horario) {
+                    Toast.makeText(HorarioActivity.this, "Horario", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.nav_profesores) {
-                    Toast.makeText(CalendarioActivity.this, "Ingresa profesores", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HorarioActivity.this, "Ingresa profesores", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.nav_salir) {
                     finish();
                 }
@@ -70,6 +70,27 @@ public class CalendarioActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        // Configuración del WeekView
+        weekView.setNumberOfVisibleDays(3);
+        weekView.setShowNowLine(true);
+        weekView.setColumnGap(8);
+        weekView.setHourHeight(60);
+        weekView.setEventTextSize(12);
+        weekView.setOverlappingEventGap(12);
+
+        // Color de las filas de todos los días (gris)
+        weekView.setPastBackgroundColor(Color.parseColor("#D3D3D3"));  // gris claro
+        weekView.setFutureBackgroundColor(Color.parseColor("#D3D3D3")); // gris claro
+        weekView.setTodayBackgroundColor(Color.parseColor("#A9A9A9"));  // gris medio
     }
 
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(navigationView)) {
+            drawerLayout.closeDrawers();
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

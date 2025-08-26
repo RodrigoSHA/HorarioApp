@@ -21,6 +21,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".CalendarioActivity" />
+        <activity android:name=".HorarioActivity" />
+        <activity android:name=".CursosActivity" />
+        <activity android:name=".ProfesoresActivity" />
+
     </application>
 
 </manifest>
