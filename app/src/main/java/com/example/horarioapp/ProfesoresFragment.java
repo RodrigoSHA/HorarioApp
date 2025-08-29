@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.horarioapp.Clases.Profesor;
 import com.example.horarioapp.FirebaseHelper;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 
@@ -50,14 +54,8 @@ public class ProfesoresFragment extends Fragment {
         cargarProfesores();
 
         // Acción del botón para agregar profesores de ejemplo
-        fabAdd.setOnClickListener(v -> {
-            // Crear dos profesores de ejemplo
-            firebaseHelper.guardarProfesor("Juan Pérez", "juan.perez@email.com", "555-1234");
-            firebaseHelper.guardarProfesor("María López", "maria.lopez@email.com", "555-5678");
+        fabAdd.setOnClickListener(v -> mostrarBottomSheetAgregarProfesor());
 
-            // Recargar lista después de agregar
-            cargarProfesores();
-        });
 
         return view;
     }
@@ -76,4 +74,38 @@ public class ProfesoresFragment extends Fragment {
             adapter.notifyDataSetChanged();
         });
     }
+
+    private void mostrarBottomSheetAgregarProfesor() {
+        View sheetView = getLayoutInflater().inflate(R.layout.bottomsheet_add_profesor, null);
+        final BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        dialog.setContentView(sheetView);
+
+        EditText etNombre = sheetView.findViewById(R.id.et_nombre);
+        EditText etCorreo = sheetView.findViewById(R.id.et_correo);
+        EditText etTelefono = sheetView.findViewById(R.id.et_telefono);
+        Button btnGuardar = sheetView.findViewById(R.id.btn_guardar);
+
+        btnGuardar.setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString().trim();
+            String correo = etCorreo.getText().toString().trim();
+            String telefono = etTelefono.getText().toString().trim();
+
+            if(nombre.isEmpty() || correo.isEmpty() || telefono.isEmpty()) {
+                Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Guardar en Firebase usando tu helper
+            firebaseHelper.guardarProfesor(nombre, correo, telefono);
+
+            dialog.dismiss();
+            Toast.makeText(getContext(), "Profesor agregado", Toast.LENGTH_SHORT).show();
+
+            // Recargar la lista
+            cargarProfesores();
+        });
+
+        dialog.show();
+    }
+
 }

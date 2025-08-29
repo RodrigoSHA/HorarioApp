@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,10 +16,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +37,7 @@ public class CursosFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_cursos, container, false);
 
         recyclerView = view.findViewById(R.id.recycler_cursos);
@@ -47,44 +51,68 @@ public class CursosFragment extends Fragment {
         // Cargar cursos desde Firebase
         cargarCursosFirebase();
 
-        // Botón agregar curso de ejemplo
+        // Botón para agregar curso
         FloatingActionButton fab = view.findViewById(R.id.fab_add);
-        fab.setOnClickListener(v -> agregarCursoEjemplo());
+        fab.setOnClickListener(v -> mostrarBottomSheetAgregarCurso());
 
         return view;
     }
 
     private void cargarCursosFirebase() {
-        firebaseHelper.obtenerCursos(new FirebaseHelper.FirebaseCallback() {
-            @Override
-            public void onCallback(DataSnapshot snapshot) {
-                listaCursos.clear();
-                for (DataSnapshot s : snapshot.getChildren()) {
-                    Map<String, String> cursoMap = new HashMap<>();
-                    cursoMap.put("principal", s.child("nombre").getValue(String.class));
-                    cursoMap.put("secundario", s.child("aula").getValue(String.class));
-                    cursoMap.put("terciario", s.child("colorHex").getValue(String.class));
-                    listaCursos.add(cursoMap);
-                }
-                adapter.notifyDataSetChanged();
+        firebaseHelper.obtenerCursos(snapshot -> {
+            listaCursos.clear();
+            for (DataSnapshot s : snapshot.getChildren()) {
+                Map<String, String> cursoMap = new HashMap<>();
+                cursoMap.put("principal", s.child("nombre").getValue(String.class));
+                cursoMap.put("secundario", s.child("aula").getValue(String.class));
+                cursoMap.put("terciario", s.child("profesor").getValue(String.class));
+                listaCursos.add(cursoMap);
             }
-
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Error al cargar cursos", Toast.LENGTH_SHORT).show();
-            }
+            adapter.notifyDataSetChanged();
         });
     }
 
-    private void agregarCursoEjemplo() {
-        String nombreCurso = "Curso Ejemplo";
-        String aula = "Aula 101";
-        String profesorId = "Profesor Ejemplo";
-        String colorHex = "#FF5722"; // Naranja de ejemplo
+    private void mostrarBottomSheetAgregarCurso() {
+        View sheetView = getLayoutInflater().inflate(R.layout.bottomsheet_add_curso, null);
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        dialog.setContentView(sheetView);
 
-        firebaseHelper.guardarCurso(nombreCurso, aula, profesorId, colorHex);
-        Toast.makeText(getContext(), "Curso de ejemplo agregado", Toast.LENGTH_SHORT).show();
+        EditText etNombre = sheetView.findViewById(R.id.et_nombre);
+        EditText etAula = sheetView.findViewById(R.id.et_aula);
+        Spinner spinnerProfesor = sheetView.findViewById(R.id.spinner_profesor);
+        Button btnGuardar = sheetView.findViewById(R.id.btn_guardar);
 
-        // Recargar cursos
-        cargarCursosFirebase();
+        // 1️⃣ Cargar profesores en el spinner
+        firebaseHelper.obtenerProfesores(snapshot -> {
+            List<String> nombres = new ArrayList<>();
+            for (DataSnapshot s : snapshot.getChildren()) {
+                String nombre = s.child("nombre").getValue(String.class);
+                if (nombre != null) nombres.add(nombre);
+            }
+            ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getContext(),
+                    android.R.layout.simple_spinner_item, nombres);
+            adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerProfesor.setAdapter(adapterSpinner);
+        });
+
+        // 2️⃣ Guardar curso
+        btnGuardar.setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString().trim();
+            String aula = etAula.getText().toString().trim();
+            String profesor = spinnerProfesor.getSelectedItem() != null ?
+                    spinnerProfesor.getSelectedItem().toString() : "";
+
+            if (nombre.isEmpty() || aula.isEmpty() || profesor.isEmpty()) {
+                Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            firebaseHelper.guardarCurso(nombre, aula, profesor);
+            Toast.makeText(getContext(), "Curso agregado", Toast.LENGTH_SHORT).show();
+            cargarCursosFirebase();
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 }

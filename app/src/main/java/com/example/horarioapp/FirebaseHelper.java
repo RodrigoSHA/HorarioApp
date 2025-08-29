@@ -49,8 +49,8 @@ public class FirebaseHelper {
     /** -------------------- Cursos -------------------- **/
 
     // Guardar un curso
-    public void guardarCurso(String nombre, String aula, String profesorId, String colorHex) {
-        Curso curso = new Curso(nombre, aula, profesorId, colorHex);
+    public void guardarCurso(String nombre, String aula, String profesorId) {
+        Curso curso = new Curso(nombre, aula, profesorId);
         mDatabase.child("cursos").push().setValue(curso)
                 .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "Curso guardado!"))
                 .addOnFailureListener(e -> Log.e("FirebaseHelper", "Error: " + e.getMessage()));
