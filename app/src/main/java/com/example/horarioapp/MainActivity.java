@@ -1,15 +1,13 @@
 package com.example.horarioapp;
 
-import androidx.annotation.NonNull;
+import android.os.Bundle;
+
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.widget.Toolbar;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.Toast;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -19,7 +17,6 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     Toolbar toolbar;
     ActionBarDrawerToggle toggle;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,38 +29,69 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
-        toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.black));
 
-        // Eventos del menú lateral
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (savedInstanceState == null) {
+            loadHomeFragment();
+        }
 
-                int id = item.getItemId();
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
 
-                if (id == R.id.nav_pag_principal) {
-                    Toast.makeText(MainActivity.this, "Pagina Principal", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_courses) {
-                    Toast.makeText(MainActivity.this, "Ingresar Cursos", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_calendario) {
-                    Intent intent = new Intent(MainActivity.this, CalendarioActivity.class);
-                    startActivity(intent);
-                } else if (id == R.id.nav_horario) {
-                    Intent intent = new Intent(MainActivity.this, HorarioActivity.class);
-                    startActivity(intent);
-                } else if (id == R.id.nav_profesores) {
-                    Toast.makeText(MainActivity.this, "Ingresa profesores", Toast.LENGTH_SHORT).show();
-                } else if (id == R.id.nav_salir) {
-                    finish();
-                }
-
-                drawerLayout.closeDrawers();
-                return true;
+            if (id == R.id.nav_pag_principal) {
+                loadHomeFragment();
+            } else if (id == R.id.nav_courses) {
+                loadFragment(new CursosFragment(), true);
+            } else if (id == R.id.nav_calendario) {
+                loadFragment(new CalendarioFragment(), true);
+            } else if (id == R.id.nav_horario) {
+                loadFragment(new HorarioFragment(), true);
+            } else if (id == R.id.nav_profesores) {
+                loadFragment(new ProfesoresFragment(), true);
+            } else if (id == R.id.nav_salir) {
+                finish();
             }
+
+            drawerLayout.closeDrawers();
+            return true;
         });
+    }
+
+    private void loadHomeFragment() {
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new PrincipalFragment())
+                .commit();
+    }
+
+    private void loadFragment(Fragment fragment, boolean addToBackStack) {
+        if (addToBackStack) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (!(currentFragment instanceof PrincipalFragment)) {
+            loadHomeFragment();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
